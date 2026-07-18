@@ -22,7 +22,7 @@ export function Hero() {
       </div>
 
       <div className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
-        <Stagger className="max-w-xl lg:max-w-none" stagger={0.12}>
+        <Stagger className="max-w-xl lg:max-w-none" stagger={0.12} when="mount">
           <StaggerItem>
             <Badge
               variant="secondary"
@@ -85,7 +85,11 @@ export function Hero() {
           </StaggerItem>
         </Stagger>
 
-        <ScaleReveal className="flex justify-center lg:justify-end" delay={0.15}>
+        <ScaleReveal
+          className="flex justify-center lg:justify-end"
+          delay={0.15}
+          when="mount"
+        >
           <div className="relative">
             <div
               className="absolute inset-0 -z-10 scale-110 rounded-full bg-primary/10 blur-3xl"

@@ -3,15 +3,15 @@
 import {
   motion,
   useInView,
-  useReducedMotion,
   type HTMLMotionProps,
 } from "framer-motion";
 import { useRef, type ReactNode } from "react";
 import { appleEaseOut, motionTransition } from "@/lib/motion";
+import { useSkipMotion } from "@/lib/use-skip-motion";
 
-const defaultViewport = {
+const inViewOptions = {
   once: true,
-  amount: 0.1,
+  amount: 0,
   margin: "0px 0px 120px 0px",
 } as const;
 
@@ -20,7 +20,6 @@ type RevealProps = Omit<HTMLMotionProps<"div">, "children"> & {
   delay?: number;
   duration?: keyof typeof motionTransition;
   offset?: number;
-  blur?: boolean;
 };
 
 export function Reveal({
@@ -29,27 +28,31 @@ export function Reveal({
   delay = 0,
   duration = "medium",
   offset = 28,
-  blur = true,
   ...props
 }: RevealProps) {
+  const skipMotion = useSkipMotion();
+
+  if (skipMotion) {
+    return (
+      <div className={className} data-motion-reveal>
+        {children}
+      </div>
+    );
+  }
+
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, defaultViewport);
-  const prefersReducedMotion = useReducedMotion();
-  const visible = prefersReducedMotion || isInView;
+  const isInView = useInView(ref, inViewOptions);
 
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={false}
-      animate={
-        visible
-          ? { opacity: 1, y: 0, filter: "blur(0px)" }
-          : { opacity: 0, y: offset, filter: blur ? "blur(8px)" : "blur(0px)" }
-      }
+      data-motion-reveal
+      initial={{ opacity: 0, y: offset }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: offset }}
       transition={{
         ...motionTransition[duration],
-        delay: visible ? delay : 0,
+        delay: isInView ? delay : 0,
       }}
       {...props}
     >
@@ -73,15 +76,20 @@ export function FadeIn({
   offset = 12,
   ...props
 }: FadeInProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
-  if (prefersReducedMotion) {
-    return <div className={className}>{children}</div>;
+  if (skipMotion) {
+    return (
+      <div className={className} data-motion-reveal>
+        {children}
+      </div>
+    );
   }
 
   return (
     <motion.div
       className={className}
+      data-motion-reveal
       initial={{ opacity: 0, y: offset }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -99,6 +107,8 @@ type StaggerProps = Omit<HTMLMotionProps<"div">, "children"> & {
   children: ReactNode;
   stagger?: number;
   delayChildren?: number;
+  /** mount = animate on load (hero). inView = animate when scrolled into view. */
+  when?: "mount" | "inView";
 };
 
 export function Stagger({
@@ -106,19 +116,30 @@ export function Stagger({
   className,
   stagger = 0.1,
   delayChildren = 0.05,
+  when = "inView",
   ...props
 }: StaggerProps) {
+  const skipMotion = useSkipMotion();
+
+  if (skipMotion) {
+    return (
+      <div className={className} data-motion-reveal>
+        {children}
+      </div>
+    );
+  }
+
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, defaultViewport);
-  const prefersReducedMotion = useReducedMotion();
-  const visible = prefersReducedMotion || isInView;
+  const isInView = useInView(ref, inViewOptions);
+  const shouldAnimate = when === "mount" ? true : isInView;
 
   return (
     <motion.div
       ref={ref}
       className={className}
+      data-motion-reveal
       initial="hidden"
-      animate={visible ? "visible" : "hidden"}
+      animate={shouldAnimate ? "visible" : "hidden"}
       variants={{
         hidden: {},
         visible: {
@@ -144,25 +165,24 @@ export function StaggerItem({
   className,
   ...props
 }: StaggerItemProps) {
-  const prefersReducedMotion = useReducedMotion();
+  const skipMotion = useSkipMotion();
 
-  if (prefersReducedMotion) {
-    return <div className={className}>{children}</div>;
+  if (skipMotion) {
+    return (
+      <div className={className} data-motion-reveal>
+        {children}
+      </div>
+    );
   }
 
   return (
     <motion.div
       className={className}
       variants={{
-        hidden: {
-          opacity: 0,
-          y: 24,
-          filter: "blur(8px)",
-        },
+        hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
-          filter: "blur(0px)",
           transition: {
             duration: 0.85,
             ease: appleEaseOut,
@@ -179,37 +199,44 @@ export function StaggerItem({
 type ScaleRevealProps = Omit<HTMLMotionProps<"div">, "children"> & {
   children: ReactNode;
   delay?: number;
+  when?: "mount" | "inView";
 };
 
 export function ScaleReveal({
   children,
   className,
   delay = 0,
+  when = "inView",
   ...props
 }: ScaleRevealProps) {
+  const skipMotion = useSkipMotion();
+
+  if (skipMotion) {
+    return (
+      <div className={className} data-motion-reveal>
+        {children}
+      </div>
+    );
+  }
+
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { ...defaultViewport, amount: 0.2 });
-  const prefersReducedMotion = useReducedMotion();
-  const visible = prefersReducedMotion || isInView;
+  const isInView = useInView(ref, inViewOptions);
+  const shouldAnimate = when === "mount" ? true : isInView;
 
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={false}
+      data-motion-reveal
+      initial={{ opacity: 0, y: 28, scale: 0.97 }}
       animate={
-        visible
-          ? { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }
-          : {
-              opacity: 0,
-              y: 32,
-              scale: 0.96,
-              filter: "blur(10px)",
-            }
+        shouldAnimate
+          ? { opacity: 1, y: 0, scale: 1 }
+          : { opacity: 0, y: 28, scale: 0.97 }
       }
       transition={{
         ...motionTransition.slow,
-        delay: visible ? delay : 0,
+        delay: shouldAnimate ? delay : 0,
       }}
       {...props}
     >
