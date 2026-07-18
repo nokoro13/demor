@@ -1,11 +1,14 @@
+"use client";
+
 import { Separator } from "@/components/ui/separator";
+import { Reveal } from "@/components/motion/Reveal";
 
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
     <footer className="mt-auto border-t border-border/60 bg-background px-6 py-10">
-      <div className="mx-auto max-w-6xl">
+      <Reveal className="mx-auto max-w-6xl" offset={16} duration="medium">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="text-center sm:text-left">
             <p className="text-sm font-medium text-foreground">Demor</p>
@@ -21,7 +24,7 @@ export function Footer() {
         <p className="text-center text-sm text-muted-foreground sm:text-left">
           &copy; {year} Demor. All rights reserved.
         </p>
-      </div>
+      </Reveal>
     </footer>
   );
 }
