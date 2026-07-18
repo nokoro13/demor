@@ -2,7 +2,7 @@
 
 import { useReducedMotion } from "framer-motion";
 
-/** True only when the user has explicitly enabled Reduce Motion. */
-export function useSkipMotion() {
+/** True when the user prefers reduced motion (iOS Accessibility setting). */
+export function useShouldReduceMotion() {
   return useReducedMotion() === true;
 }
