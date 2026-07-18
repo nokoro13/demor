@@ -8,13 +8,16 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Demor — Healthcare made simple",
+  title: "Demor — Client experience platform for medspas",
   description:
-    "Demor helps patients and providers connect seamlessly. Manage appointments, records, and communication in one place.",
+    "Demor helps medspa owners deliver a premium, branded client experience with online booking, secure messaging, and retention tools.",
+  appleWebApp: {
+    title: "Demor",
+  },
   openGraph: {
-    title: "Demor — Healthcare made simple",
+    title: "Demor — Client experience platform for medspas",
     description:
-      "Demor helps patients and providers connect seamlessly.",
+      "Premium booking, client portals, and communication built for modern medspas.",
     url: "https://demor.app",
     siteName: "Demor",
     type: "website",
@@ -28,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-white font-sans text-slate-900">
+      <body className="flex min-h-full flex-col bg-background font-sans text-foreground">
         {children}
       </body>
     </html>
